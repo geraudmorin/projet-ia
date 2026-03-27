@@ -270,6 +270,23 @@
     .profil-items { grid-template-columns: 1fr; }
     .header-contact { text-align: left; }
   }
+
+  /* BOUTON PROTOTYPE */
+  .btn-proto {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 10px 22px;
+    background: #1e3a5f;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-proto:hover { background: #e8a020; color: #1a1a1a; }
+  .btn-proto::before { content: '▶ '; }
 </style>
 </head>
 <body>
@@ -369,6 +386,7 @@
         <div class="debouche-content">
           <div class="name">Projet CIGEO — Bure (Meuse/Haute-Marne)</div>
           <div class="detail">Chantier de 100 ans démarrant en 2027. Contact direct avec le directeur de chantier Eiffage via réseau Andra. Enquête publique mai 2026.</div>
+          <a class="btn-proto" href="ia_factory_home.html">Voir le prototype</a>
         </div>
       </div>
       <div class="debouche-item">
