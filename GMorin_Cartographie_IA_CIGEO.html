@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartographie IA & CIGEO — Géraud Morin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --noir: #0d0d0d;
+    --blanc: #f5f3ee;
+    --accent: #c8401a;
+    --gris: #4a4a4a;
+    --gris-clair: #e8e4de;
+    --or: #b8963e;
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --coral: #993C1D;
+    --coral-light: #FAECE7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--blanc);
+    color: var(--noir);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--noir);
+    color: var(--blanc);
+    padding: 48px 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.10;
+  }
+  .header-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .header-sub {
+    font-size: 15px;
+    color: #aaa;
+    max-width: 560px;
+    font-weight: 300;
+  }
+  .header-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .meta-item { border-left: 2px solid var(--accent); padding-left: 14px; }
+  .meta-item .label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #888; }
+  .meta-item .value { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--blanc); }
+
+  /* ── NAV ONGLETS ── */
+  nav {
+    background: var(--noir);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 0 80px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #777;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn:hover { color: #ccc; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── CONTENU PRINCIPAL ── */
+  main { max-width: 960px; margin: 0 auto; padding: 50px 40px 80px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+  }
+  .section-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase; white-space: nowrap;
+  }
+  .section-line { flex: 1; height: 1px; background: var(--gris-clair); }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 700;
+    margin-bottom: 24px; color: var(--noir);
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    margin-bottom: 10px; color: var(--noir);
+  }
+
+  /* ── FAMILLE CARD ── */
+  .famille {
+    border-radius: 6px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .famille-header {
+    padding: 18px 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .famille-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; opacity: 0.7;
+  }
+  .famille-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+  }
+  .famille-body { padding: 0 24px 24px; }
+
+  /* Couleurs par famille */
+  .f-purple .famille-header { background: var(--purple-light); color: #26215C; border-left: 4px solid var(--purple); }
+  .f-purple .sous-fiche { border-color: rgba(83,74,183,0.25); }
+  .f-purple .sous-fiche-tag { background: var(--purple); }
+
+  .f-teal .famille-header { background: var(--teal-light); color: #04342C; border-left: 4px solid var(--teal); }
+  .f-teal .sous-fiche { border-color: rgba(15,110,86,0.25); }
+  .f-teal .sous-fiche-tag { background: var(--teal); }
+
+  .f-amber .famille-header { background: var(--amber-light); color: #412402; border-left: 4px solid var(--amber); }
+  .f-amber .sous-fiche { border-color: rgba(133,79,11,0.25); }
+  .f-amber .sous-fiche-tag { background: var(--amber); }
+
+  .f-blue .famille-header { background: var(--blue-light); color: #042C53; border-left: 4px solid var(--blue); }
+  .f-blue .sous-fiche { border-color: rgba(24,95,165,0.25); }
+  .f-blue .sous-fiche-tag { background: var(--blue); }
+
+  .f-coral .famille-header { background: var(--coral-light); color: #4A1B0C; border-left: 4px solid var(--coral); }
+  .f-coral .sous-fiche { border-color: rgba(153,60,29,0.25); }
+  .f-coral .sous-fiche-tag { background: var(--coral); }
+
+  /* ── GRILLE SOUS-FICHES ── */
+  .sous-fiches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .sous-fiche {
+    background: var(--blanc);
+    border: 1px solid;
+    border-radius: 4px;
+    padding: 16px;
+  }
+  .sous-fiche-tag {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+  .sous-fiche h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 6px; color: var(--noir);
+  }
+  .sous-fiche p {
+    font-size: 12.5px; color: var(--gris);
+    line-height: 1.55;
+  }
+
+  /* ── NOTE TECHNIQUE ── */
+  .note-tech {
+    background: #f0ede7;
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 0 4px 4px 0;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--gris);
+    line-height: 1.65;
+  }
+  .note-tech strong { color: var(--accent); font-weight: 500; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: var(--noir);
+    color: var(--blanc);
+    padding: 28px 32px;
+    border-radius: 4px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .highlight-box::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--accent);
+    border-radius: 4px 0 0 4px;
+  }
+  .highlight-box p { font-size: 15px; line-height: 1.8; font-weight: 300; }
+  .highlight-box strong { color: var(--accent); font-weight: 500; }
+
+  /* ── PANEL VUE D'ENSEMBLE ── */
+  .vue-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .vue-card {
+    border: 1px solid var(--gris-clair);
+    border-radius: 4px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .vue-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .vue-card-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .vue-card h3 { font-size: 14px; margin-bottom: 6px; }
+  .vue-card p { font-size: 12.5px; color: var(--gris); line-height: 1.55; }
+  .vue-card .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .pill {
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    border: 1px solid var(--gris-clair);
+    color: var(--gris);
+    padding: 2px 8px; border-radius: 2px;
+  }
+
+  /* ── LIEN RETOUR ── */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent); text-decoration: none;
+    border: 1px solid rgba(200,64,26,0.4);
+    padding: 8px 16px; border-radius: 3px;
+    transition: background 0.2s;
+    margin-bottom: 40px;
+    display: inline-flex;
+  }
+  .back-link:hover { background: rgba(200,64,26,0.07); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--noir);
+    color: #666;
+    text-align: center;
+    padding: 24px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 700px) {
+    header { padding: 36px 20px; }
+    header h1 { font-size: 24px; }
+    nav { padding: 0 12px; }
+    main { padding: 32px 16px 60px; }
+    .vue-grid { grid-template-columns: 1fr; }
+    .sous-fiches-grid { grid-template-columns: 1fr; }
+  }
+
+  /* BOUTON RETOUR HEADER */
+  .header-retour {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 7px 16px;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.9);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.25);
+    transition: background 0.2s;
+  }
+  .header-retour:hover { background: var(--accent); color: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="header-retour">← Retour au dossier</a>
+  <div class="header-label">Document de référence — CIGEO · IA FACTORY</div>
+  <h1>Cartographie IA & CIGEO</h1>
+  <p class="header-sub">Intelligence artificielle et robotique appliquées au projet de stockage géologique profond — familles et sous-familles technologiques</p>
+  <div class="header-meta">
+    <div class="meta-item">
+      <div class="label">Auteur</div>
+      <div class="value">Géraud Morin</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Projet ciblé</div>
+      <div class="value">CIGEO / Bure</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Familles</div>
+      <div class="value">5 domaines</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">RDV conseillère</div>
+      <div class="value">31 Mars 2026</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="showTab('vue', this)">Vue d'ensemble</button>
+  <button class="tab-btn" onclick="showTab('robotique', this)">① Robotique</button>
+  <button class="tab-btn" onclick="showTab('chaire', this)">② Chaire Nancy</button>
+  <button class="tab-btn" onclick="showTab('donnees', this)">③ Collecte données</button>
+  <button class="tab-btn" onclick="showTab('numerique', this)">④ Jumeaux Numériques</button>
+  <button class="tab-btn" onclick="showTab('manutention', this)">⑤ Logistique</button>
+</nav>
+
+<main>
+
+  <!-- ══════════════════════ -->
+  <!-- VUE D'ENSEMBLE -->
+  <!-- ══════════════════════ -->
+  <div id="tab-vue" class="tab-panel active">
+    <a href="index.html" class="back-link">← Retour au dossier</a>
+
+    <div class="section-header">
+      <span class="section-num">Vue d'ensemble</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>5 familles technologiques IA appliquées à CIGEO</h2>
+
+    <div class="highlight-box">
+      <p>CIGEO est <strong>le seul projet en France où l'IA et la robotique sont déployées à 500 m de profondeur</strong>, sans GPS, sur un horizon de 150 ans de construction. L'Andra y développe une R&D unique, en partenariat avec les Mines de Nancy, Inria, des start-ups DeepTech et des industriels comme Bouygues Construction.</p>
+    </div>
+
+    <div class="vue-grid">
+
+      <div class="vue-card" onclick="showTab('robotique', document.querySelector('[onclick*=robotique]'))">
+        <div class="vue-card-num">Famille 01</div>
+        <h3>Robotique autonome souterraine</h3>
+        <p>Robots SCAR, CIGÉFIX, SAM testés dans les galeries de Bure depuis 2019. Navigation sans GPS, capteurs LiDAR, IA embarquée.</p>
+        <div class="pills">
+          <span class="pill">Boston Dynamics Spot</span>
+          <span class="pill">LiDAR</span>
+          <span class="pill">Navigation autonome</span>
+        </div>
+      </div>
+
+      <div class="vue-card" onclick="showTab('chaire', document.querySelector('[onclick*=chaire]'))">
+        <div class="vue-card-num">Famille 02</div>
+        <h3>Chaire Mines Nancy × Andra</h3>
+        <p>Chaire de recherche inaugurée en mai 2021. Lien direct entre formation ingénieurs et terrain d'expérimentation souterrain unique.</p>
+        <div class="pills">
+          <span class="pill">LORIA / CNRS-Inria</span>
+          <span class="pill">Univ. Lorraine</span>
+          <span class="pill">10 projets sur 5 ans</span>
+        </div>
+      </div>
+
+      <div class="vue-card" onclick="showTab('donnees', document.querySelector('[onclick*=donnees]'))">
+        <div class="vue-card-num">Famille 03</div>
+        <h3>Collecte de données par IA embarquée</h3>
+        <p>Relevés géologiques, mesures de convergence, détection de fissures béton, inventaires d'équipements — en temps réel, sans arrêter les creusements.</p>
+        <div class="pills">
+          <span class="pill">Vision par ordinateur</span>
+          <span class="pill">Edge computing</span>
+          <span class="pill">Nuages de points 3D</span>
+        </div>
+      </div>
+
+      <div class="vue-card" onclick="showTab('numerique', document.querySelector('[onclick*=numerique]'))">
+        <div class="vue-card-num">Famille 04</div>
+        <h3>Jumeaux Numériques</h3>
+        <p>Maquette numérique BIM/PLM, jumeaux phénoménologiques, projet ARDNA (contrôle non-destructif IA). Mémoire du chantier sur 150 ans.</p>
+        <div class="pills">
+          <span class="pill">BIM LOD</span>
+          <span class="pill">PLM</span>
+          <span class="pill">Deep learning</span>
+          <span class="pill">Ondes sismiques 4D</span>
+        </div>
+      </div>
+
+      <div class="vue-card" onclick="showTab('manutention', document.querySelector('[onclick*=manutention]'))">
+        <div class="vue-card-num">Famille 05</div>
+        <h3>Logistique</h3>
+        <p>Flotte de 11 robots (LEON, ROCO, UMA, AMBRE, RIDEAU…) pour inspecter, stocker et retirer les colis béton radioactifs. 3 brevets déposés.</p>
+        <div class="pills">
+          <span class="pill">Bouygues CN</span>
+          <span class="pill">Robot RIDEAU</span>
+          <span class="pill">Réversibilité</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note-tech" style="margin-top: 28px;">
+      <strong>Pourquoi c'est un argument clé :</strong> aucun outil IA de coordination documentaire et BIM n'a encore été déployé sur cet écosystème. Les 5 familles technologiques ci-dessus produisent des données hétérogènes (LiDAR, sismique, vidéo, capteurs IoT, maquettes 3D) qui ne sont pas encore unifiées dans un référentiel commun accessible aux chefs de projet en temps réel — c'est exactement le rôle de l'agent IA conçu dans la formation OpenClassrooms.
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════ -->
+  <!-- FAMILLE 1 — ROBOTIQUE -->
+  <!-- ══════════════════════ -->
+  <div id="tab-robotique" class="tab-panel">
+    <div class="section-header">
+      <span class="section-num">Famille 01</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Robotique autonome en milieu souterrain</h2>
+
+    <div class="famille f-purple">
+      <div class="famille-header">
+        <span class="famille-num">01-A</span>
+        <span class="famille-title">Les robots testés dans les galeries de Bure</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Premier robot · 2020</span>
+            <h4>SCAR</h4>
+            <p>Robot-chien Boston Dynamics Spot. Premier exemplaire en France destiné à l'enseignement, acquis par Mines Nancy. Baptisé "Système Complexe d'Assistance Robotisée". Premiers essais à 500 m de profondeur en mai 2021.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Robot Andra · 2024</span>
+            <h4>CIGÉFIX</h4>
+            <p>Robot-chien Spot acquis directement par l'Andra. 6 campagnes d'essais planifiées en 2024. Missions : cartographie des équipements de sécurité, inspection des fronts de taille, mesure de convergence des parois par laser/LiDAR.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Alvéoles HA · 2019+</span>
+            <h4>SAM</h4>
+            <p>Robot sur 4 roues (30 kg, 70 cm de long). Conçu pour circuler dans les microtunnels de 70 cm de diamètre. Équipé de 3 lasers simultanés, caméra nocturne, capteurs de gaz/temp/pression/humidité. IA embarquée pour déplacement autonome.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="famille f-purple">
+      <div class="famille-header">
+        <span class="famille-num">01-B</span>
+        <span class="famille-title">Défis techniques spécifiques à CIGEO</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Contrainte majeure</span>
+            <h4>Navigation sans GPS</h4>
+            <p>À 500 m de profondeur, aucun signal GPS. Les robots doivent cartographier et se repérer en utilisant des tags QR, la signalétique des galeries ou le SLAM (cartographie simultanée et localisation).</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Environnement</span>
+            <h4>250 km de galeries</h4>
+            <p>À terminaison, CIGEO comprendra 250 km de galeries et alvéoles. Les robots devront opérer dans des espaces exigus, avec câbles, engins de forage, et repères visuels limités.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Horizon temporel</span>
+            <h4>150 ans de construction</h4>
+            <p>La robotique autonome doit s'adapter à l'évolution des technologies sur plus d'un siècle. L'Andra a donc adopté une approche modulaire par "briques technologiques" indépendantes du robot lui-même.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-tech">
+      <strong>Capteurs embarqués :</strong> LiDAR (détection laser temps réel) · caméras (dont vision nocturne) · radars · capteurs de gaz, température, pression, humidité · edge computing (traitement IA local) · liaison WiFi renforcée. Les données sont traitées par algorithmes d'IA embarqués ou déportés en périphérie du robot.
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════ -->
+  <!-- FAMILLE 2 — CHAIRE -->
+  <!-- ══════════════════════ -->
+  <div id="tab-chaire" class="tab-panel">
+    <div class="section-header">
+      <span class="section-num">Famille 02</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Chaire de recherche Mines Nancy × Andra</h2>
+
+    <div class="famille f-teal">
+      <div class="famille-header">
+        <span class="famille-num">02-A</span>
+        <span class="famille-title">La chaire « IA pour applications robotiques en environnements complexes »</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Création</span>
+            <h4>Inauguration mai 2021</h4>
+            <p>Inaugurée le 11 mai 2021 dans les galeries du laboratoire souterrain de Bure, en présence du robot SCAR en démonstration. Fruit de 3 ans de collaboration préalable entre Mines Nancy et l'Andra.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Porteur académique</span>
+            <h4>Laurent Ciarletta</h4>
+            <p>Enseignant-chercheur à Mines Nancy, responsable de l'équipe Simbiot du LORIA (Laboratoire lorrain de recherche en informatique, CNRS-Inria-Université de Lorraine).</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Programme</span>
+            <h4>~10 projets sur 5 ans</h4>
+            <p>Développement de l'IA embarquée, conception de systèmes robotiques avancés, optimisation de l'acquisition et du traitement des données. Les étudiants descendent régulièrement dans les galeries avec les robots.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="famille f-teal">
+      <div class="famille-header">
+        <span class="famille-num">02-B</span>
+        <span class="famille-title">Réseau de partenaires</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Partenaire fondateur</span>
+            <h4>Andra</h4>
+            <p>Met à disposition le laboratoire souterrain de Meuse/Haute-Marne comme terrain d'expérimentation unique en France. Participe activement à l'application opérationnelle des technologies.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Recherche publique</span>
+            <h4>LORIA / Inria / CNRS</h4>
+            <p>Apporte les compétences en IA, robotique et simulation numérique. Accord de partenariat stratégique global entre l'Andra et l'Université de Lorraine.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Terrain</span>
+            <h4>Labo souterrain Bure</h4>
+            <p>Laboratoire souterrain de Meuse/Haute-Marne : galeries à 500 m de profondeur, unique en France, utilisé pour tester les robots et algorithmes en conditions réelles depuis 2019.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-tech">
+      <strong>Pertinence pour le dossier :</strong> la chaire est localisée à Nancy — même territoire que le candidat. Les étudiants formés par cette chaire sont les futurs ingénieurs IA qui travailleront sur CIGEO. Un profil hybride terrain + IA est exactement ce que cette chaire cherche à produire.
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════ -->
+  <!-- FAMILLE 3 — DONNÉES -->
+  <!-- ══════════════════════ -->
+  <div id="tab-donnees" class="tab-panel">
+    <div class="section-header">
+      <span class="section-num">Famille 03</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Collecte de données par IA embarquée</h2>
+
+    <div class="famille f-amber">
+      <div class="famille-header">
+        <span class="famille-num">03-A</span>
+        <span class="famille-title">Données géométriques et structurelles</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Géologie</span>
+            <h4>Levés géologiques automatisés</h4>
+            <p>Acquisition de données sur les fronts de creusement : nature de la roche, fractures naturelles, état de la couche argileuse. Par LiDAR et caméras embarquées. Sans arrêt des travaux.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Déformation</span>
+            <h4>Mesure de convergence</h4>
+            <p>Mesure régulière et systématique de la déformation des parois des galeries (réduction du diamètre). Par laser ou LiDAR — les mêmes points sont remesurés toutes les semaines pour suivre l'évolution dans le temps.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Vision IA</span>
+            <h4>Détection fissures béton</h4>
+            <p>Vision par ordinateur embarquée pour détecter automatiquement fissures, éclats et brèches dans les revêtements béton des galeries. En cours d'intégration sur le robot RIDEAU (optimisation prévue). Classification par type : fissures, rejets calcaires, trous.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="famille f-amber">
+      <div class="famille-header">
+        <span class="famille-num">03-B</span>
+        <span class="famille-title">Données contextuelles et de sécurité</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Inventaires</span>
+            <h4>Cartographies évolutives</h4>
+            <p>Identification et localisation automatique des équipements (coffrets électriques, extincteurs, signalisations, téléphones) pour créer et mettre à jour des inventaires permanents.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Sécurité</span>
+            <h4>Détection d'incidents</h4>
+            <p>Détection précoce et fiable d'incendie, déplacement dans un environnement enfumé, mesures de qualité de l'air (gaz, poussières), exploration de zones inaccessibles au personnel.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Output</span>
+            <h4>Alimentation BIM/PLM</h4>
+            <p>Toutes les données collectées alimentent les outils numériques de CIGEO (BIM, PLM, jumeaux numériques) pour maintenir le référentiel projet "tel que construit" à jour en temps réel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════ -->
+  <!-- FAMILLE 4 — NUMÉRIQUE -->
+  <!-- ══════════════════════ -->
+  <div id="tab-numerique" class="tab-panel">
+    <div class="section-header">
+      <span class="section-num">Famille 04</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Jumeaux Numériques — BIM, PLM & simulation</h2>
+
+    <div class="famille f-blue">
+      <div class="famille-header">
+        <span class="famille-num">04-A</span>
+        <span class="famille-title">Référentiel projet — BIM & PLM</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Maquette 3D</span>
+            <h4>BIM CIGEO</h4>
+            <p>Maquette numérique en cours de développement depuis plusieurs années. Stocke la géométrie de tous les éléments : descenderies, puits, alvéoles, ventilation, bâtiments. Base de données unique et commune à tous les sous-traitants.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Cycle de vie</span>
+            <h4>PLM — Product Lifecycle Mgmt</h4>
+            <p>Gestion des données sur toute la durée de vie de l'installation (150 ans d'exploitation + fermeture). Coordination multi-sous-traitants, traçabilité, détection d'incohérences entre lots de travaux successifs.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Mémoire</span>
+            <h4>As-built permanent</h4>
+            <p>"Dans 100 ans, nous pourrons retrouver l'historique des études de CIGEO, comprendre les choix qui ont été faits et faire de nouveaux choix en connaissance de cause." (Gérard Bourriaux, Andra)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="famille f-blue">
+      <div class="famille-header">
+        <span class="famille-num">04-B</span>
+        <span class="famille-title">Jumeaux numériques & IA de simulation</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Simulation</span>
+            <h4>Jumeaux phénoménologiques</h4>
+            <p>Modèles numériques simulant l'évolution du stockage depuis l'exploitation jusqu'à 1 million d'années après fermeture. Partenariat Andra–Inria depuis 2009 pour les méthodes numériques et statistiques.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Projet lauréat France Relance</span>
+            <h4>ARDNA</h4>
+            <p>AI Research on Data for Nuclear Application. Contrôle non-destructif augmenté par IA : propagation d'ondes sismiques dans la roche pour cartographier les fissures en 4D autour des alvéoles. Résultats en 1 seconde vs plusieurs semaines. Partenaires : Andra + Aquila Data Enabler + SpotLight (DeepTech).</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">BIM World 2026</span>
+            <h4>Présence Andra au BIM World</h4>
+            <p>Stéphane Dufour (ingénieur jumeaux numériques, direction opérationnelle CIGEO) et Sylvain Guilloteau (Andra) présents au BIM World Paris 2026 — signe de la montée en puissance du numérique sur le projet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-tech">
+      <strong>Approche hybride ARDNA :</strong> couplage de deux types de modélisation complémentaires — modèle physique (équations de propagation des ondes) + modèle data (deep learning entraîné sur supercalculateurs GENCI). Résultat : une "échographie" instantanée de la roche autour des alvéoles, exploitable en conditions réelles.
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════ -->
+  <!-- FAMILLE 5 — MANUTENTION -->
+  <!-- ══════════════════════ -->
+  <div id="tab-manutention" class="tab-panel">
+    <div class="section-header">
+      <span class="section-num">Famille 05</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Logistique & acheminement robotisé des colis</h2>
+
+    <div class="famille f-coral">
+      <div class="famille-header">
+        <span class="famille-num">05-A</span>
+        <span class="famille-title">Flotte de robots pour alvéoles MA-VL</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Inspection · Bouygues CN</span>
+            <h4>RIDEAU</h4>
+            <p>Robot à chenilles léger et agile développé par Bouygues Construction Expertises Nucléaires. Se faufile entre les colis de béton (1,5 × 1,5 × 2 m). Scrute fissures et brèches. Protégé par 3 brevets. Essais au Creusot en 2023.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Flotte complète</span>
+            <h4>LEON · ROCO · UMA · AMBRE</h4>
+            <p>11 robots au total : 1 chariot de transport + 1 chariot de secours + 2 outils d'inspection + 7 outils d'intervention. Testés grandeur réelle dans une reproduction d'alvéole MA-VL sur un ancien site industriel (est de la France).</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Propriété intellectuelle</span>
+            <h4>6 brevets Andra</h4>
+            <p>3 brevets déposés, 3 en cours d'instruction. Campagne d'essais terminée en décembre 2023, suivie d'une visite de l'Autorité de sûreté nucléaire (ASN). Intégration de l'IA prévue comme prochaine étape.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="famille f-coral">
+      <div class="famille-header">
+        <span class="famille-num">05-B</span>
+        <span class="famille-title">Acheminement et réversibilité robotisée</span>
+      </div>
+      <div class="famille-body">
+        <div class="sous-fiches-grid">
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Alvéoles HA</span>
+            <h4>Acheminement automatisé</h4>
+            <p>Colis de haute activité poussés de façon robotisée dans des alvéoles de 80 cm de diamètre et 150 m de long. Aucune intervention humaine directe possible du fait de la radioactivité.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Loi de réversibilité</span>
+            <h4>Robots de retrait des colis</h4>
+            <p>CIGEO est conçu pour être réversible sur toute sa durée d'exploitation. Des robots capables de retirer les colis de leur alvéole sont développés et testés à l'échelle — c'est une exigence légale du projet.</p>
+          </div>
+          <div class="sous-fiche">
+            <span class="sous-fiche-tag">Surveillance continue</span>
+            <h4>Réseau de capteurs in situ</h4>
+            <p>Capteurs installés dans l'installation permettent de surveiller en continu l'évolution des conditions de stockage : température, humidité, gaz, déformation des parois, intégrité des colis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-tech">
+      <strong>Situations dégradées testées :</strong> colis mal positionnés, chute d'un morceau de béton, dégradation du chemin de roulement, variation de la pente, colis cylindriques (vs cubiques standards). Les robots ont également été évalués pour leur capacité à gérer des colis en stockage direct de forme cylindrique (2,6 t).
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Géraud Morin — Cartographie IA &amp; CIGEO — Mars 2026
+</footer>
+
+<script>
+// Ouverture automatique de l'onglet via paramètre URL (?tab=robotique etc.)
+window.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab) {
+    const btn = document.querySelector('[onclick*="' + tab + '"]');
+    showTab(tab, btn);
+  }
+});
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn && btn.classList) {
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(id)) {
+        b.classList.add('active');
+      }
+    });
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>

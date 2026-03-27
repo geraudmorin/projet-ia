@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0c10">
+<title>IA FACTORY — CIGEO</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background:#0a0c10;
+  touch-action:manipulation;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/*
+  Approche responsive correcte :
+  - La scène garde le ratio natif 2000:1490 (≈ 1.342)
+  - Elle est la plus grande possible dans la fenêtre
+  - Les zones tactiles en % sont TOUJOURS exactes car relatives à la scène
+*/
+#stage {
+  position:relative;
+  /* Ratio 2000:1490 = 74.5% */
+  width:min(100vw, calc(100vh * 2000 / 1490));
+  height:min(100vh, calc(100vw * 1490 / 2000));
+  flex-shrink:0;
+}
+
+/* Toutes les images couvrent exactement la scène */
+.layer {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:fill; /* fill = pas de recadrage, on contrôle le ratio via #stage */
+  display:block;
+  pointer-events:none;
+}
+
+/* Les hover sont transparentes par défaut */
+.hover-layer {
+  opacity:0;
+  transition:opacity 0.15s ease-out;
+}
+.hover-layer.active {
+  opacity:1;
+}
+
+/*
+  ── Zones tactiles ──
+  Coordonnées en % calculées depuis les centres pixel-perfect détectés
+  sur l'image 2000×1490 px :
+
+  Robotique  : cx=353  cy=347  r=210  → left=17.65% top=23.29%  w=21% (2×210/2000)
+  Logistique : cx=1262 cy=577  r=165  → left=63.1%  top=38.72%  w=16.5%
+  Jumeaux    : cx=1718 cy=804  r=240  → left=85.9%  top=53.96%  w=24%
+  Chaire     : cx=611  cy=1075 r=195  → left=30.55% top=72.15%  w=19.5%
+  Collecte   : cx=955  cy=1030 r=185  → left=47.75% top=69.13%  w=18.5%
+  Coeur      : cx=1820 cy=1445 r=45   → left=91%    top=96.98%  w=4.5%
+*/
+.hotspot {
+  position:absolute;
+  border-radius:50%;
+  cursor:pointer;
+  transform:translate(-50%, -50%);
+  -webkit-tap-highlight-color:transparent;
+  /* Décommenter pour debug : border:2px solid lime; */
+}
+
+#hs-robotique  { left:17.65%; top:23.29%; width:21%;   aspect-ratio:1; }
+#hs-logistique { left:63.1%;  top:38.72%; width:16.5%; aspect-ratio:1; }
+#hs-jumeaux    { left:85.9%;  top:53.96%; width:24%;   aspect-ratio:1; }
+#hs-chaire     { left:30.55%; top:72.15%; width:19.5%; aspect-ratio:1; }
+#hs-collecte   { left:47.75%; top:69.13%; width:18.5%; aspect-ratio:1; }
+#hs-coeur      { left:43%;    top:36%;    width:16%;   aspect-ratio:1; }
+
+/* Feedback visuel au tap */
+@keyframes tap-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(255,220,100,0.7); }
+  100% { box-shadow: 0 0 0 24px rgba(255,220,100,0); }
+}
+.hotspot.tapped {
+  animation: tap-ring 0.35s ease-out;
+}
+
+/* Tooltip label */
+.hs-label {
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%);
+  font-family:'Courier New', monospace;
+  font-size:clamp(9px, 1.2vw, 13px);
+  letter-spacing:0.18em;
+  color:rgba(212,170,96,0.95);
+  white-space:nowrap;
+  background:rgba(0,0,0,0.65);
+  padding:3px 8px;
+  border-radius:3px;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.2s;
+  text-transform:uppercase;
+}
+.hotspot:hover .hs-label { opacity:1; }
+
+
+/* BOUTON RETOUR */
+#btn-retour {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 999;
+  background: rgba(30,58,95,0.88);
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: background 0.2s;
+}
+#btn-retour:hover { background: rgba(232,160,32,0.9); color: #1a1a1a; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- Image de base -->
+  <img class="layer" src="img/IA_Factory.png" alt="IA Factory">
+
+  <!-- Images hover — s'affichent par fondu au tap/survol -->
+  <img class="layer hover-layer" id="hov-robotique"  src="img/IA_Factory_Robotique.png"        alt="">
+  <img class="layer hover-layer" id="hov-logistique" src="img/IA_Factory_Logistique.png"       alt="">
+  <img class="layer hover-layer" id="hov-jumeaux"    src="img/IA_Factory_Jumeaux.png"          alt="">
+  <img class="layer hover-layer" id="hov-chaire"     src="img/IA_Factory_ChaireNancy.png"      alt="">
+  <img class="layer hover-layer" id="hov-collecte"   src="img/IA_Factory_CollectesDonnees.png" alt="">
+  <img class="layer hover-layer" id="hov-coeur"      src="img/IA_Factory_Coeur.png"            alt="">
+
+  <!-- Zones tactiles invisibles -->
+  <div class="hotspot" id="hs-robotique"
+       data-hover="hov-robotique"
+       data-target="GMorin_Cartographie_IA_CIGEO.html?tab=robotique"
+       aria-label="Robotique">
+    <span class="hs-label">Robotique</span>
+  </div>
+
+  <div class="hotspot" id="hs-logistique"
+       data-hover="hov-logistique"
+       data-target="GMorin_Cartographie_IA_CIGEO.html?tab=manutention"
+       aria-label="Logistique / Manutention">
+    <span class="hs-label">Logistique</span>
+  </div>
+
+  <div class="hotspot" id="hs-jumeaux"
+       data-hover="hov-jumeaux"
+       data-target="GMorin_Cartographie_IA_CIGEO.html?tab=numerique"
+       aria-label="Jumeaux Numériques">
+    <span class="hs-label">Jumeaux Numériques</span>
+  </div>
+
+  <div class="hotspot" id="hs-chaire"
+       data-hover="hov-chaire"
+       data-target="GMorin_Cartographie_IA_CIGEO.html?tab=chaire"
+       aria-label="Chaire Nancy">
+    <span class="hs-label">Chaire Nancy</span>
+  </div>
+
+  <div class="hotspot" id="hs-collecte"
+       data-hover="hov-collecte"
+       data-target="GMorin_Cartographie_IA_CIGEO.html?tab=donnees"
+       aria-label="Collecte Données">
+    <span class="hs-label">Collecte Données</span>
+  </div>
+
+  <div class="hotspot" id="hs-coeur"
+       data-hover="hov-coeur"
+       data-target="GMorin_Concept_CIGEO_Digital_Factory.html"
+       aria-label="Innovation Numérique">
+    <span class="hs-label">Innovation Numérique</span>
+  </div>
+
+</div>
+
+<script>
+// ─── Gestion hover souris + tap tactile ───────────────────────────
+const hotspots   = document.querySelectorAll('.hotspot');
+let   activeHov  = null;
+let   tapTimer   = null;
+let   tappedEl   = null;
+
+function showHover(id) {
+  if (activeHov && activeHov !== id) {
+    document.getElementById(activeHov).classList.remove('active');
+  }
+  document.getElementById(id).classList.add('active');
+  activeHov = id;
+}
+
+function hideHover(id) {
+  document.getElementById(id).classList.remove('active');
+  if (activeHov === id) activeHov = null;
+}
+
+function go(target) {
+  if (target) window.location.href = target;
+}
+
+hotspots.forEach(hs => {
+  const hovId  = hs.dataset.hover;
+  const target = hs.dataset.target;
+
+  // Souris
+  hs.addEventListener('mouseenter', () => showHover(hovId));
+  hs.addEventListener('mouseleave', () => hideHover(hovId));
+  hs.addEventListener('click', () => go(target));
+
+  // Tactile Android
+  hs.addEventListener('touchstart', e => {
+    e.preventDefault();
+    tappedEl = hs;
+    showHover(hovId);
+    hs.classList.add('tapped');
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => go(target), 400);
+  }, { passive: false });
+
+  hs.addEventListener('touchend', e => {
+    e.preventDefault();
+    clearTimeout(tapTimer);
+    hs.classList.remove('tapped');
+    // Tap court → naviguer immédiatement
+    go(target);
+  }, { passive: false });
+
+  hs.addEventListener('touchcancel', () => {
+    clearTimeout(tapTimer);
+    hs.classList.remove('tapped');
+    hideHover(hovId);
+  });
+});
+
+// Pré-chargement silencieux des images hover
+['img/IA_Factory_Robotique.png','img/IA_Factory_Logistique.png',
+ 'img/IA_Factory_Jumeaux.png','img/IA_Factory_ChaireNancy.png',
+ 'img/IA_Factory_CollectesDonnees.png','img/IA_Factory_Coeur.png'
+].forEach(src => { const i = new Image(); i.src = src; });
+</script>
+
+<a id="btn-retour" href="index.html">← Retour au dossier</a>
+</body>
+</html>
