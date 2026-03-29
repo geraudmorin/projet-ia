@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent IA — Coordination de Chantier · Géraud Morin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --noir: #0d0d0d;
+    --blanc: #f5f3ee;
+    --accent: #c8401a;
+    --bleu: #1e3a5f;
+    --gris: #4a4a4a;
+    --gris-clair: #e8e4de;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--blanc);
+    color: var(--noir);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--noir);
+    color: var(--blanc);
+    padding: 48px 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.10;
+  }
+
+  .header-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  .header-sub {
+    font-size: 14px;
+    color: #aaa;
+    max-width: 560px;
+    font-weight: 300;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* INTRO */
+  .intro-box {
+    background: var(--noir);
+    color: var(--blanc);
+    padding: 28px 32px;
+    border-radius: 4px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .intro-box::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--accent);
+    border-radius: 4px 0 0 4px;
+  }
+
+  .intro-box p {
+    font-size: 15px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .intro-box strong { color: var(--accent); font-weight: 500; }
+
+  /* SECTION */
+  .section { margin-bottom: 56px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .section-line { flex: 1; height: 1px; background: var(--gris-clair); }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* CAS D'USAGE — carte avec image */
+  .cas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+
+  .cas-card {
+    border: 1px solid var(--gris-clair);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .cas-card:hover { border-color: var(--accent); }
+
+  .cas-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    background: #222;
+  }
+
+  .cas-body { padding: 16px; }
+
+  .cas-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .cas-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .cas-defi {
+    font-size: 12px;
+    color: var(--gris);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+
+  .cas-ia {
+    font-size: 12px;
+    background: #fff8f5;
+    border-left: 2px solid var(--accent);
+    padding: 6px 10px;
+    color: var(--gris);
+    line-height: 1.5;
+  }
+
+  .cas-ia strong { color: var(--accent); font-weight: 500; }
+
+  /* CE QUE FAIT L'AGENT */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .agent-card {
+    background: white;
+    border: 1px solid var(--gris-clair);
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .agent-icon { font-size: 24px; margin-bottom: 10px; }
+
+  .agent-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .agent-desc {
+    font-size: 12.5px;
+    color: var(--gris);
+    line-height: 1.6;
+  }
+
+  /* RÉSULTAT */
+  .resultat-box {
+    background: var(--bleu);
+    color: white;
+    padding: 28px 32px;
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  .res-item { text-align: center; }
+
+  .res-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #7eb8e8;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .res-lab {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.4;
+  }
+
+  /* CIGEO */
+  .cigeo-box {
+    background: var(--gris-clair);
+    border-radius: 4px;
+    padding: 24px 28px;
+  }
+
+  .cigeo-box p {
+    font-size: 14px;
+    color: var(--gris);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .cigeo-box p:last-child { margin-bottom: 0; }
+
+  .cigeo-box strong { color: var(--noir); font-weight: 600; }
+
+  footer {
+    background: var(--noir);
+    color: #666;
+    text-align: center;
+    padding: 24px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 700px) {
+    header { padding: 32px 20px; }
+    main { padding: 32px 16px 60px; }
+    .cas-grid, .agent-grid, .resultat-box { grid-template-columns: 1fr; }
+    header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div style="background:#0d0d0d;padding:10px 28px;border-bottom:1px solid rgba(255,255,255,0.08);">
+  <a href="index.html" style="color:rgba(255,255,255,0.5);font-size:12px;text-decoration:none;letter-spacing:1px;">← Retour au dossier</a>
+</div>
+
+<header>
+  <div class="header-label">Débouché 3 — Agent IA Grands Chantiers</div>
+  <h1>Pourquoi un Agent IA<br>de Coordination est nécessaire</h1>
+  <p class="header-sub">15 ans de coordination manuelle sur les chantiers les plus complexes de France — le constat terrain d'un technicien qui a vécu le problème.</p>
+</header>
+
+<main>
+
+  <!-- INTRO -->
+  <div class="intro-box">
+    <p>Sur chaque grand chantier, des dizaines d'intervenants produisent des données hétérogènes — plans AutoCAD, maquettes BIM, relevés LiDAR, comptes-rendus, métrés, planning. <strong>Coordonner ces données manuellement représente 30 à 50% du temps d'un bureau d'études.</strong> Un agent IA appliqué à ce flux permettrait d'<strong>optimiser 80% de ce travail</strong> — en synthétisant, détectant les incohérences et alertant les équipes en temps réel.</p>
+  </div>
+
+  <!-- CAS D'USAGE TERRAIN -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>6 cas d'usage réels — vécus sur le terrain</h2>
+
+    <div class="cas-grid">
+
+      <div class="cas-card">
+        <img class="cas-img" src="img/UsinePrefabrication.JPG" alt="Usine préfabrication Tunnel A41">
+        <div class="cas-body">
+          <div class="cas-tag">Tunnel A41 · AutoCAD</div>
+          <div class="cas-title">Usine de préfabrication des voussoirs</div>
+          <div class="cas-defi">Concevoir une usine de préfabrication sur site pour les voussoirs du tunnelier. Chrono-analyse manuelle de toutes les phases de production.</div>
+          <div class="cas-ia"><strong>Agent IA :</strong> Génère automatiquement le planning de production optimisé et détecte les conflits de flux entre zones de stockage et voies de circulation.</div>
+        </div>
+      </div>
+
+      <div class="cas-card">
+        <img class="cas-img" src="img/Pile_974.JPG" alt="Viaduc Saint-Paul 3D">
+        <div class="cas-body">
+          <div class="cas-tag">Viaduc Saint-Paul · AutoCAD 3D</div>
+          <div class="cas-title">Détection de clashs précontrainte / ferraillage</div>
+          <div class="cas-defi">Interface complexe entre les câbles de précontrainte et les armatures de ferraillage sur un viaduc de grande portée. Détection manuelle, longue et sujette à erreurs.</div>
+          <div class="cas-ia"><strong>Agent IA :</strong> Analyse la maquette 3D et détecte automatiquement tous les clashs géométriques avant exécution — résultat en secondes.</div>
+        </div>
+      </div>
+
+      <div class="cas-card">
+        <img class="cas-img" src="img/43B-5.JPG" alt="Modélisation TGV Civil 3D">
+        <div class="cas-body">
+          <div class="cas-tag">TGV Rhin-Rhône · Civil 3D</div>
+          <div class="cas-title">Modélisation terrain et chiffrage TGV</div>
+          <div class="cas-defi">Modélisation 3D des remblais, déblais et ouvrages hydrauliques sur des dizaines de kilomètres. Coordination entre géomètres, études et travaux.</div>
+          <div class="cas-ia"><strong>Agent IA :</strong> Synthétise les données LiDAR, calcule automatiquement les cubatures et génère les métrés comparatifs en temps réel.</div>
+        </div>
+      </div>
+
+      <div class="cas-card">
+        <img class="cas-img" src="img/A5.jpg" alt="Centrale thermique Lucciana 3D">
+        <div class="cas-body">
+          <div class="cas-tag">Centrale Lucciana · AutoCAD 3D</div>
+          <div class="cas-title">Phasage de construction</div>
+          <div class="cas-defi">Coordination du phasage de construction d'une centrale thermique — coffrage, fondations, bâtiment principal. Chaque phase implique plusieurs entreprises simultanément.</div>
+          <div class="cas-ia"><strong>Agent IA :</strong> Génère et met à jour le planning de phasage automatiquement selon l'avancement terrain, et alerte sur les interférences entre corps d'état.</div>
+        </div>
+      </div>
+
+      <div class="cas-card">
+        <img class="cas-img" src="img/PIC_EEVLH2.JPG" alt="Plan installation chantier Orano La Hague">
+        <div class="cas-body">
+          <div class="cas-tag">Orano La Hague · AutoCAD & Revit BIM</div>
+          <div class="cas-title">Coordination tous corps d'état — nucléaire</div>
+          <div class="cas-defi">Plan d'installation chantier pour coordonner toutes les entreprises cotraitantes sur un site nucléaire. Contraintes réglementaires maximales, zéro droit à l'erreur.</div>
+          <div class="cas-ia"><strong>Agent IA :</strong> Vérifie la conformité documentaire en temps réel, génère les plans de prévention et coordonne les accès entre entreprises automatiquement.</div>
+        </div>
+      </div>
+
+      <div class="cas-card">
+        <img class="cas-img" src="img/Infraworks_3.JPG" alt="InfraWorks modélisation infrastructure">
+        <div class="cas-body">
+          <div class="cas-tag">Chantier ferroviaire · InfraWorks</div>
+          <div class="cas-title">Maquette numérique d'infrastructure</div>
+          <div class="cas-defi">Intégration des données terrain (nuages de points LiDAR) dans une maquette numérique 3D pour visualisation et coordination d'ensemble du projet.</div>
+          <div class="cas-ia"><strong>Agent IA :</strong> Traite automatiquement les nuages de points, génère la maquette numérique et maintient la cohérence avec les données de terrain en temps réel.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CE QUE FAIT L'AGENT -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Ce que fait l'agent IA de coordination</h2>
+
+    <div class="agent-grid">
+      <div class="agent-card">
+        <div class="agent-icon">📄</div>
+        <div class="agent-title">Synthèse documentaire</div>
+        <div class="agent-desc">Analyse et résume automatiquement les comptes-rendus de chantier, notes techniques et rapports d'avancement. Ce qui prenait 2h manuellement se fait en 30 secondes.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">⚠️</div>
+        <div class="agent-title">Détection d'incohérences</div>
+        <div class="agent-desc">Compare les plans, les métrés et les données terrain pour détecter automatiquement les conflits avant qu'ils deviennent des erreurs coûteuses sur chantier.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🔗</div>
+        <div class="agent-title">Unification BIM</div>
+        <div class="agent-desc">Agrège les données hétérogènes de toutes les entreprises (AutoCAD, Revit, Civil 3D, LiDAR) dans un référentiel commun accessible en temps réel.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">📡</div>
+        <div class="agent-title">Traçabilité permanente</div>
+        <div class="agent-desc">Enregistre chaque décision, chaque modification, chaque validation. Sur un chantier de 150 ans comme CIGÉO, la mémoire du projet est un enjeu critique.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🤖</div>
+        <div class="agent-title">Interface langage naturel</div>
+        <div class="agent-desc">Le chef de projet pose une question en français — "où en est le ferraillage du plot 3 ?" — et l'agent répond avec les données à jour issues de toutes les sources.</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-icon">🔔</div>
+        <div class="agent-title">Alertes proactives</div>
+        <div class="agent-desc">Détecte les risques de retard, les conflits de planning, les manques de validation documentaire — et alerte les responsables avant que le problème survienne.</div>
+      </div>
+    </div>
+
+    <div class="resultat-box">
+      <div class="res-item">
+        <div class="res-val">80%</div>
+        <div class="res-lab">du temps de coordination documentaire optimisé</div>
+      </div>
+      <div class="res-item">
+        <div class="res-val">0</div>
+        <div class="res-lab">clash non détecté avant exécution</div>
+      </div>
+      <div class="res-item">
+        <div class="res-val">150 ans</div>
+        <div class="res-lab">de mémoire de chantier garantie sur CIGÉO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CIGÉO -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Pourquoi CIGÉO est le cas d'usage idéal</h2>
+
+    <div class="cigeo-box">
+      <p><strong>250 km de galeries, 5 familles technologiques IA, des milliers d'intervenants sur 150 ans</strong> — CIGÉO est le chantier le plus complexe jamais réalisé en France. Les données hétérogènes produites par les robots LiDAR, les capteurs IoT, les équipes BIM et les sous-traitants ne sont aujourd'hui pas unifiées dans un référentiel commun accessible aux chefs de projet en temps réel.</p>
+      <p><strong>C'est précisément le problème que l'agent IA de coordination résout.</strong> Et c'est un problème que j'ai identifié sur le terrain — d'abord comme projeteur sur le Laboratoire souterrain de Bure en 2005, puis comme chargé de communication scientifique Andra en 2024-2025.</p>
+      <p>La formation AI Engineer OpenClassrooms est le chemin pour construire cet outil. <strong>Le terrain, je le connais depuis 20 ans. Il me manque les outils techniques pour le coder.</strong></p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Géraud Morin — Agent IA Coordination Grands Chantiers — Document de projet — Mars 2026
+</footer>
+
+</body>
+</html>

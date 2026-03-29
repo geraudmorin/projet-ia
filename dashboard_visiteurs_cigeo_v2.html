@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Visiteurs CIGÉO — ETE 2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bleu: #1e3a5f;
+    --bleu2: #2d5a8e;
+    --bleu3: #4a7fb5;
+    --or: #c8a020;
+    --fond: #f4f6f9;
+    --blanc: #ffffff;
+    --gris: #6b7280;
+    --gris-clair: #e5e7eb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--fond);
+    color: #1f2937;
+    font-size: 14px;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--bleu) 0%, var(--bleu2) 100%);
+    color: white;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left .label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 3px;
+  }
+
+  .header-left h1 { font-size: 20px; font-weight: 700; }
+  .header-left .sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+  .header-badge {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+  }
+
+  /* SÉLECTEUR DE MOIS */
+  .mois-bar {
+    background: var(--bleu);
+    padding: 10px 28px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .mois-btn {
+    padding: 5px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.65);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .mois-btn:hover { background: rgba(255,255,255,0.12); color: white; }
+
+  .mois-btn.active {
+    background: var(--or);
+    border-color: var(--or);
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* TITRE PÉRIODE */
+  .periode-titre {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bleu);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .periode-titre .badge {
+    font-size: 10px;
+    background: var(--bleu);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* KPIs */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .kpi {
+    background: var(--blanc);
+    border-radius: 8px;
+    padding: 16px;
+    border-top: 3px solid var(--bleu);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .kpi .val { font-size: 24px; font-weight: 700; color: var(--bleu); line-height: 1; margin-bottom: 3px; }
+  .kpi .lab { font-size: 11px; color: var(--gris); }
+
+  /* GRILLES */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+  .card {
+    background: var(--blanc);
+    border-radius: 8px;
+    padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gris);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gris-clair);
+  }
+
+  .chart-wrap { position: relative; height: 200px; }
+  .chart-wrap-sm { position: relative; height: 160px; }
+
+  /* ESPACES */
+  .espace-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .espace-nom { font-size: 11px; color: #374151; width: 150px; flex-shrink: 0; }
+
+  .espace-bar-wrap {
+    flex: 1;
+    background: var(--gris-clair);
+    border-radius: 4px;
+    height: 7px;
+    overflow: hidden;
+  }
+
+  .espace-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--bleu) 0%, var(--bleu2) 100%);
+    transition: width 0.6s ease;
+  }
+
+  .espace-val { font-size: 11px; font-weight: 600; color: var(--bleu); width: 45px; text-align: right; flex-shrink: 0; }
+
+  /* PAYS VIDE */
+  .pays-vide { font-size: 12px; color: var(--gris); font-style: italic; padding: 20px 0; text-align: center; }
+
+  /* COURBE ANNUELLE */
+  .card-annee { margin-bottom: 14px; }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--gris);
+    padding: 16px;
+    border-top: 1px solid var(--gris-clair);
+  }
+
+  footer strong { color: var(--bleu); }
+
+  @media (max-width: 800px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div style="background:#0d0d0d;padding:10px 28px;border-bottom:1px solid rgba(255,255,255,0.08);">
+  <a href="index.html" style="color:rgba(255,255,255,0.5);font-size:12px;text-decoration:none;letter-spacing:1px;">← Retour au dossier</a>
+</div>
+
+<header>
+  <div class="header-left">
+    <div class="label">Andra — Centre Meuse / Haute-Marne</div>
+    <h1>Dashboard Visiteurs — ETE 2025</h1>
+    <div class="sub">Espace Technologique · Analyse automatisée · 600 visites</div>
+  </div>
+  <div class="header-badge">⚙️ Généré par Python + pandas</div>
+</header>
+
+<!-- SÉLECTEUR DE MOIS -->
+<div class="mois-bar">
+  <button class="mois-btn active" onclick="setMois(0)">Année complète</button>
+  <button class="mois-btn" onclick="setMois(1)">Janvier</button>
+  <button class="mois-btn" onclick="setMois(2)">Février</button>
+  <button class="mois-btn" onclick="setMois(3)">Mars</button>
+  <button class="mois-btn" onclick="setMois(4)">Avril</button>
+  <button class="mois-btn" onclick="setMois(5)">Mai</button>
+  <button class="mois-btn" onclick="setMois(6)">Juin</button>
+  <button class="mois-btn" onclick="setMois(7)">Juillet</button>
+  <button class="mois-btn" onclick="setMois(8)">Août</button>
+  <button class="mois-btn" onclick="setMois(9)">Septembre</button>
+  <button class="mois-btn" onclick="setMois(10)">Octobre</button>
+  <button class="mois-btn" onclick="setMois(11)">Novembre</button>
+  <button class="mois-btn" onclick="setMois(12)">Décembre</button>
+</div>
+
+<main>
+
+  <div class="periode-titre">
+    <span id="titrePeriode">Année complète 2025</span>
+    <span class="badge" id="badgeVisites">600 visites</span>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi"><div class="val" id="kpi1">9 447</div><div class="lab">Total contacts</div></div>
+    <div class="kpi"><div class="val" id="kpi2">7 982</div><div class="lab">Visiteurs CMHM</div></div>
+    <div class="kpi"><div class="val" id="kpi3">1 707</div><div class="lab">Visiteurs étrangers</div></div>
+    <div class="kpi"><div class="val" id="kpi4">600</div><div class="lab">Visites enregistrées</div></div>
+  </div>
+
+  <!-- Courbe annuelle (toujours visible) -->
+  <div class="card card-annee">
+    <div class="card-title">Fréquentation mensuelle — vue annuelle</div>
+    <div class="chart-wrap">
+      <canvas id="chartMoisAnnee"></canvas>
+    </div>
+  </div>
+
+  <!-- Graphiques dynamiques -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Profils des visiteurs</div>
+      <div class="chart-wrap"><canvas id="chartProfils"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Fréquentation par espace</div>
+      <ul id="espacesList"></ul>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Top pays étrangers</div>
+      <div class="chart-wrap" id="paysWrap"><canvas id="chartPays"></canvas></div>
+      <div class="pays-vide" id="paysVide" style="display:none">Aucune délégation étrangère ce mois</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Répartition contacts</div>
+      <div class="chart-wrap-sm"><canvas id="chartRep"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>Dashboard Visiteurs CIGÉO — ETE 2025</strong> · Données : BASE_DONNES_2025.xlsx · Généré automatiquement par Python + pandas · Géraud Morin
+</footer>
+
+<script>
+const BLEU = '#1e3a5f';
+const BLEU2 = '#2d5a8e';
+const BLEU3 = '#4a7fb5';
+const OR = '#c8a020';
+const GRIS = '#9ca3af';
+
+Chart.defaults.font.family = 'Inter';
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#6b7280';
+
+// ══ DONNÉES ══
+const ANNEE = {
+  contacts: 9447, visiteurs: 7982, etrangers: 1707, nb_visites: 600,
+  profils: {
+    'Grand public': 3546, 'Scolaires': 1950, 'Administ.': 1316,
+    'Étudiants': 621, 'Élus locaux': 683, 'Industriels': 509,
+    'Entreprises': 425, 'Ens./Cherch.': 213, 'Journalistes': 20, 'Élus nat.': 18
+  },
+  espaces: {
+    'Fond (labo souterrain)': 7914, 'Expo CIGÉO': 3455,
+    'Expo BAP': 2835, 'Halle ETE': 208, 'Hall ETE': 67
+  },
+  pays: [['Allemagne',34],['Belgique',34],['Royaume-Uni',31],['Corée du Sud',23],['Pays-Bas',18],['Espagne',15]]
+};
+
+const MOIS_DATA = {
+  1:  { contacts:520,  visiteurs:503,  etrangers:17,  nb_visites:26,  profils:{'Grand public':281,'Scolaires':3,'Administ.':135,'Étudiants':72,'Élus locaux':0,'Industriels':12,'Entreprises':7,'Ens./Cherch.':3,'Journalistes':1,'Élus nat.':6}, espaces:{'Fond (labo souterrain)':503,'Expo CIGÉO':106,'Expo BAP':154,'Halle ETE':18,'Hall ETE':0}, pays:[['Espagne',9]] },
+  2:  { contacts:475,  visiteurs:220,  etrangers:255, nb_visites:26,  profils:{'Grand public':20,'Scolaires':146,'Administ.':67,'Étudiants':209,'Élus locaux':0,'Industriels':12,'Entreprises':18,'Ens./Cherch.':3,'Journalistes':0,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':220,'Expo CIGÉO':170,'Expo BAP':160,'Halle ETE':16,'Hall ETE':5}, pays:[['Royaume-Uni',11]] },
+  3:  { contacts:1292, visiteurs:1168, etrangers:124, nb_visites:54,  profils:{'Grand public':339,'Scolaires':456,'Administ.':209,'Étudiants':138,'Élus locaux':10,'Industriels':76,'Entreprises':29,'Ens./Cherch.':32,'Journalistes':3,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':1168,'Expo CIGÉO':419,'Expo BAP':367,'Halle ETE':40,'Hall ETE':0}, pays:[['Allemagne',5],['Royaume-Uni',2],['Japon',2],['Suisse',2]] },
+  4:  { contacts:977,  visiteurs:551,  etrangers:426, nb_visites:50,  profils:{'Grand public':245,'Scolaires':274,'Administ.':112,'Étudiants':9,'Élus locaux':18,'Industriels':26,'Entreprises':103,'Ens./Cherch.':44,'Journalistes':0,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':551,'Expo CIGÉO':442,'Expo BAP':285,'Halle ETE':16,'Hall ETE':16}, pays:[] },
+  5:  { contacts:708,  visiteurs:708,  etrangers:0,   nb_visites:44,  profils:{'Grand public':163,'Scolaires':289,'Administ.':141,'Étudiants':54,'Élus locaux':16,'Industriels':3,'Entreprises':9,'Ens./Cherch.':30,'Journalistes':3,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':708,'Expo CIGÉO':511,'Expo BAP':195,'Halle ETE':9,'Hall ETE':22}, pays:[['Pays-Bas',9],['Royaume-Uni',4],['Belgique',3]] },
+  6:  { contacts:549,  visiteurs:549,  etrangers:0,   nb_visites:49,  profils:{'Grand public':181,'Scolaires':100,'Administ.':71,'Étudiants':3,'Élus locaux':19,'Industriels':98,'Entreprises':43,'Ens./Cherch.':23,'Journalistes':9,'Élus nat.':2}, espaces:{'Fond (labo souterrain)':549,'Expo CIGÉO':411,'Expo BAP':281,'Halle ETE':26,'Hall ETE':0}, pays:[['Autriche',10],['Canada',3],['Corée du Sud',2]] },
+  7:  { contacts:503,  visiteurs:503,  etrangers:0,   nb_visites:72,  profils:{'Grand public':347,'Scolaires':0,'Administ.':59,'Étudiants':5,'Élus locaux':0,'Industriels':41,'Entreprises':16,'Ens./Cherch.':34,'Journalistes':1,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':503,'Expo CIGÉO':287,'Expo BAP':208,'Halle ETE':13,'Hall ETE':0}, pays:[['Royaume-Uni',12],['Corée du Sud',8],['Pays-Bas',8],['Belgique',6]] },
+  8:  { contacts:339,  visiteurs:339,  etrangers:0,   nb_visites:55,  profils:{'Grand public':255,'Scolaires':0,'Administ.':48,'Étudiants':9,'Élus locaux':7,'Industriels':6,'Entreprises':11,'Ens./Cherch.':3,'Journalistes':0,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':339,'Expo CIGÉO':219,'Expo BAP':98,'Halle ETE':3,'Hall ETE':0}, pays:[['Allemagne',9],['Belgique',6],['Corée du Sud',3],['Suisse',2]] },
+  9:  { contacts:1203, visiteurs:1203, etrangers:0,   nb_visites:35,  profils:{'Grand public':835,'Scolaires':59,'Administ.':86,'Étudiants':20,'Élus locaux':74,'Industriels':50,'Entreprises':76,'Ens./Cherch.':0,'Journalistes':3,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':1201,'Expo CIGÉO':238,'Expo BAP':253,'Halle ETE':0,'Hall ETE':10}, pays:[['Belgique',15],['Espagne',2],['Allemagne',1]] },
+  10: { contacts:1334, visiteurs:1210, etrangers:124, nb_visites:79,  profils:{'Grand public':443,'Scolaires':424,'Administ.':139,'Étudiants':46,'Élus locaux':112,'Industriels':76,'Entreprises':64,'Ens./Cherch.':30,'Journalistes':0,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':1210,'Expo CIGÉO':290,'Expo BAP':339,'Halle ETE':23,'Hall ETE':0}, pays:[['Allemagne',17],['Chine',8],['Canada',5],['Japon',4],['Suisse',3]] },
+  11: { contacts:1002, visiteurs:522,  etrangers:480, nb_visites:70,  profils:{'Grand public':357,'Scolaires':46,'Administ.':138,'Étudiants':34,'Élus locaux':329,'Industriels':67,'Entreprises':26,'Ens./Cherch.':5,'Journalistes':0,'Élus nat.':0}, espaces:{'Fond (labo souterrain)':522,'Expo CIGÉO':224,'Expo BAP':322,'Halle ETE':13,'Hall ETE':14}, pays:[['Corée du Sud',8],['Japon',3]] },
+  12: { contacts:545,  visiteurs:506,  etrangers:281, nb_visites:40,  profils:{'Grand public':80,'Scolaires':153,'Administ.':111,'Étudiants':22,'Élus locaux':98,'Industriels':42,'Entreprises':23,'Ens./Cherch.':6,'Journalistes':0,'Élus nat.':10}, espaces:{'Fond (labo souterrain)':440,'Expo CIGÉO':138,'Expo BAP':173,'Halle ETE':31,'Hall ETE':0}, pays:[] },
+};
+
+const MOIS_NOMS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const MOIS_COMPLETS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MOIS_COUNTS = [26,26,54,50,44,49,72,55,35,79,70,40];
+
+let moisActif = 0;
+let chartProfils, chartPays, chartRep;
+
+// ══ COURBE ANNUELLE ══
+const ctxAnnee = document.getElementById('chartMoisAnnee').getContext('2d');
+const chartAnnee = new Chart(ctxAnnee, {
+  type: 'line',
+  data: {
+    labels: MOIS_NOMS,
+    datasets: [{
+      data: MOIS_COUNTS,
+      borderColor: BLEU,
+      backgroundColor: 'rgba(30,58,95,0.08)',
+      pointBackgroundColor: BLEU,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      tension: 0.4,
+      fill: true,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} visites` } }
+    },
+    scales: {
+      y: { grid: { color: '#f3f4f6' }, beginAtZero: true },
+      x: { grid: { display: false } }
+    },
+    onClick: (e, els) => {
+      if (els.length > 0) setMois(els[0].index + 1);
+    }
+  }
+});
+
+function highlightMoisCourbe(m) {
+  const colors = MOIS_COUNTS.map((_, i) => (m === 0 || i === m-1) ? BLEU : 'rgba(30,58,95,0.25)');
+  const radii = MOIS_COUNTS.map((_, i) => (m === 0 || i === m-1) ? 6 : 4);
+  chartAnnee.data.datasets[0].pointBackgroundColor = colors;
+  chartAnnee.data.datasets[0].pointRadius = radii;
+  chartAnnee.update();
+}
+
+// ══ MISE À JOUR ══
+function setMois(m) {
+  moisActif = m;
+
+  // Boutons
+  document.querySelectorAll('.mois-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === m);
+  });
+
+  // Titre
+  document.getElementById('titrePeriode').textContent = m === 0 ? 'Année complète 2025' : MOIS_COMPLETS[m-1] + ' 2025';
+
+  // Données
+  const d = m === 0 ? ANNEE : MOIS_DATA[m];
+
+  // Badge
+  document.getElementById('badgeVisites').textContent = d.nb_visites + ' visites';
+
+  // KPIs
+  document.getElementById('kpi1').textContent = d.contacts.toLocaleString('fr');
+  document.getElementById('kpi2').textContent = d.visiteurs.toLocaleString('fr');
+  document.getElementById('kpi3').textContent = d.etrangers.toLocaleString('fr');
+  document.getElementById('kpi4').textContent = d.nb_visites;
+
+  // Courbe
+  highlightMoisCourbe(m);
+
+  // Profils
+  const profilLabels = Object.keys(d.profils);
+  const profilData = Object.values(d.profils);
+  if (chartProfils) chartProfils.destroy();
+  chartProfils = new Chart(document.getElementById('chartProfils'), {
+    type: 'bar',
+    data: {
+      labels: profilLabels,
+      datasets: [{ data: profilData, backgroundColor: [BLEU,BLEU2,BLEU3,'#6fa3d0','#8db8db','#a8c8e8','#c3d8f0','#d8e8f5',GRIS,GRIS], borderRadius: 3 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 35 } }
+      }
+    }
+  });
+
+  // Espaces
+  const espList = document.getElementById('espacesList');
+  espList.innerHTML = '';
+  const maxEsp = Math.max(...Object.values(d.espaces));
+  Object.entries(d.espaces).forEach(([nom, val]) => {
+    const pct = maxEsp > 0 ? Math.round(val / maxEsp * 100) : 0;
+    espList.innerHTML += `
+      <li class="espace-item">
+        <span class="espace-nom">${nom}</span>
+        <div class="espace-bar-wrap"><div class="espace-bar" style="width:${pct}%"></div></div>
+        <span class="espace-val">${val.toLocaleString('fr')}</span>
+      </li>`;
+  });
+
+  // Pays
+  if (chartPays) chartPays.destroy();
+  if (d.pays.length === 0) {
+    document.getElementById('paysWrap').style.display = 'none';
+    document.getElementById('paysVide').style.display = 'block';
+  } else {
+    document.getElementById('paysWrap').style.display = 'block';
+    document.getElementById('paysVide').style.display = 'none';
+    chartPays = new Chart(document.getElementById('chartPays'), {
+      type: 'bar',
+      data: {
+        labels: d.pays.map(p => p[0]),
+        datasets: [{ data: d.pays.map(p => p[1]), backgroundColor: OR, borderRadius: 3 }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#f3f4f6' }, beginAtZero: true },
+          y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // Répartition
+  if (chartRep) chartRep.destroy();
+  const hors = Math.max(0, d.contacts - d.visiteurs);
+  chartRep = new Chart(document.getElementById('chartRep'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Visiteurs CMHM','Visiteurs étrangers','Hors CMHM'],
+      datasets: [{ data: [d.visiteurs, d.etrangers, hors], backgroundColor: [BLEU, OR, GRIS], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 12 } } }
+    }
+  });
+}
+
+// Init
+setMois(0);
+</script>
+</body>
+</html>

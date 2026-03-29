@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projet Professionnel IA — Géraud Morin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f8f8f6;
+    color: #1a1a1a;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  header {
+    background: #1e3a5f;
+    color: white;
+    padding: 40px 60px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .header-name {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .header-title {
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 300;
+  }
+
+  .header-contact {
+    text-align: right;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.8;
+  }
+
+  .header-badge {
+    margin-top: 20px;
+    display: inline-block;
+    background: #e8a020;
+    color: #1a1a1a;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 40px 60px;
+  }
+
+  /* BLOC */
+  .bloc {
+    background: white;
+    border: 1px solid #e0ddd8;
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+
+  .bloc-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1e3a5f;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #1e3a5f;
+  }
+
+  .bloc p {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+
+  .bloc p:last-child { margin-bottom: 0; }
+
+  /* HIGHLIGHT */
+  .highlight {
+    background: #eef4ff;
+    border-left: 3px solid #1e3a5f;
+    padding: 14px 18px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  /* GRILLE 3 */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .mini-card {
+    background: #f0f4f9;
+    border-radius: 4px;
+    padding: 16px;
+  }
+
+  .mini-card .num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e3a5f;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .mini-card .label {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    margin-top: 4px;
+  }
+
+  .tl-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .tl-item:last-child { margin-bottom: 0; }
+
+  .tl-left {
+    flex-shrink: 0;
+    width: 80px;
+    text-align: right;
+  }
+
+  .tl-phase {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #e8a020;
+    background: #fff8ec;
+    padding: 2px 6px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .tl-right {
+    flex: 1;
+    border-left: 2px solid #e0ddd8;
+    padding-left: 16px;
+    padding-bottom: 4px;
+  }
+
+  .tl-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+
+  .tl-desc {
+    font-size: 13px;
+    color: #666;
+  }
+
+  /* DÉBOUCHÉS */
+  .debouches {
+    margin-top: 4px;
+  }
+
+  .debouche-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+
+  .debouche-item:last-child { border-bottom: none; }
+
+  .debouche-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: #1e3a5f;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .debouche-content .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+
+  .debouche-content .detail {
+    font-size: 13px;
+    color: #666;
+  }
+
+  /* PROFIL */
+  .profil-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .profil-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #333;
+  }
+
+  .profil-item::before {
+    content: '✓';
+    color: #1e3a5f;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: #999;
+    border-top: 1px solid #e0ddd8;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 30px 20px; }
+    main { padding: 20px 16px 40px; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .profil-items { grid-template-columns: 1fr; }
+    .header-contact { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="header-name">Géraud Morin</div>
+      <div class="header-title">Technicien Supérieur — 20 ans d'expérience — Grand Est</div>
+    </div>
+    <div class="header-contact">
+      06 73 25 93 63<br>
+      <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d2b5b7a0b3a7b6bfbf92babda6bfb3bbbefcb1bdbf">[email&#160;protected]</a><br>
+      Villers-lès-Nancy (54)
+    </div>
+  </div>
+  <div class="header-badge">Projet professionnel — Mars 2026</div>
+</header>
+
+<main>
+
+  <!-- PROJET -->
+  <div class="bloc">
+    <div class="bloc-title">Le projet en une phrase</div>
+    <p>Faire correspondre mon niveau de qualification à mon expérience réelle de cadre, en obtenant une certification AI Engineer — avec un débouché identifié : proposer un outil IA de coordination pour le projet CIGEO à l'Andra en Meuse/Haute-Marne.</p>
+    <div class="highlight">"En travaillant un an et demi pour la communication de l'Andra sur CIGEO, j'ai identifié un besoin réel en coordination IA sur les grands chantiers. Je veux coupler mes 15 ans en bureau d'études à l'IA pour répondre à ce besoin."</div>
+  </div>
+
+  <!-- CHIFFRES CLÉS -->
+  <div class="bloc">
+    <div class="bloc-title">Chiffres clés du dossier</div>
+    <div class="grid-3">
+      <div class="mini-card">
+        <div class="num">20 ans</div>
+        <div class="label">d'expérience en génie civil et grands travaux</div>
+      </div>
+      <div class="mini-card">
+        <div class="num">Bac +2</div>
+        <div class="label">sur le papier — parcours de cadre dans les faits</div>
+      </div>
+      <div class="mini-card">
+        <div class="num">12 mois</div>
+        <div class="label">durée de la formation OpenClassrooms AI Engineer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POURQUOI CE PROFIL -->
+  <div class="bloc">
+    <div class="bloc-title">Pourquoi ce financement est justifié</div>
+    <p><strong>Bac+2 sur le papier, cadre dans les faits.</strong> Responsable d'Études sur le TGV Est et le TGV Rhin-Rhône, Coordinateur BIM LOD 400 sur site nucléaire AREVA La Hague, gérant d'entreprise, chargé de communication scientifique Andra/CIGEO. La formation AI Engineer vient légitimer un parcours de cadre non diplômé.</p>
+    <p><strong>Cohérence du parcours.</strong> Formation Blockchain/Alyra 2022, coordination BIM, communication scientifique sur un projet technologique complexe. L'IA est la suite logique naturelle de cette trajectoire.</p>
+    <p><strong>Débouchés identifiés et nommés.</strong> Pas une reconversion dans le vide — une montée en compétences sur un projet concret avec des interlocuteurs déjà contactés.</p>
+  </div>
+
+  <!-- PLAN DE FORMATION -->
+  <div class="bloc">
+    <div class="bloc-title">Plan de formation — 12 mois</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-left"><span class="tl-phase">M 1-2</span></div>
+        <div class="tl-right">
+          <div class="tl-title">Fondamentaux IA</div>
+          <div class="tl-desc">Elements of AI + AI for Everyone — bases conceptuelles gratuites en parallèle</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><span class="tl-phase">M 3-6</span></div>
+        <div class="tl-right">
+          <div class="tl-title">Python & Agents IA — OpenClassrooms</div>
+          <div class="tl-desc">Python, LangChain, RAG — construction des premières briques techniques</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><span class="tl-phase">M 7-10</span></div>
+        <div class="tl-right">
+          <div class="tl-title">Projet concret — Agent IA Chantier</div>
+          <div class="tl-desc">Développement d'un outil IA de coordination documentaire appliqué aux grands chantiers</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><span class="tl-phase">M 11-12</span></div>
+        <div class="tl-right">
+          <div class="tl-title">Certification AI Engineer</div>
+          <div class="tl-desc">Obtention du diplôme + présentation du prototype aux acteurs CIGEO identifiés</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÉBOUCHÉS -->
+  <div class="bloc">
+    <div class="bloc-title">3 débouchés — une progression logique</div>
+    <div class="debouches">
+      <div class="debouche-item">
+        <div class="debouche-num">1</div>
+        <div class="debouche-content">
+          <div class="name">Communication — Dashboard & analyse de données</div>
+          <div class="detail">Valoriser les données de fréquentation et de communication du projet CIGEO via des outils d'analyse automatisés. Exemple concret : dashboard visiteurs ETE 2025 généré automatiquement depuis les données brutes Andra. <strong style="color:#1e3a5f">→ Prototype fonctionnel réalisé</strong> <a href="dashboard_visiteurs_cigeo_v2.html" style="color:#1e3a5f;font-weight:600;font-size:12px;margin-left:8px;">→ Voir le dashboard</a></div>
+        </div>
+      </div>
+      <div class="debouche-item">
+        <div class="debouche-num">2</div>
+        <div class="debouche-content">
+          <div class="name">Communication augmentée — Application tablette guide IA</div>
+          <div class="detail">Interface tactile pour les guides de l'Espace Technologique de l'Andra — permet d'approfondir les sujets IA lors des visites VIP et grand public. Chaque module du parcours visiteur ouvre un contenu IA enrichi. <strong style="color:#1e3a5f">→ Prototype interface réalisé</strong> <a href="cigeo_visite_ia_v2.html" style="color:#1e3a5f;font-weight:600;font-size:12px;margin-left:8px;">→ Voir le prototype</a></div>
+        </div>
+      </div>
+      <div class="debouche-item">
+        <div class="debouche-num">3</div>
+        <div class="debouche-content">
+          <div class="name">Construction augmentée — Agent IA de coordination grands chantiers</div>
+          <div class="detail">Unifier les données hétérogènes (BIM, LiDAR, capteurs, documents) produites par les dizaines d'intervenants sur CIGEO dans un référentiel commun accessible en temps réel. 15 ans de coordination manuelle sur TGV, tunnel, nucléaire — le besoin est identifié de l'intérieur. <strong style="color:#1e3a5f">→ Cas d'usage documenté</strong> <a href="agent_ia_coordination.html" style="color:#1e3a5f;font-weight:600;font-size:12px;margin-left:8px;">→ Voir le cas d'usage</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="bloc">
+    <div class="bloc-title">Parcours en 8 points</div>
+    <div class="profil-items">
+      <div class="profil-item">TGV Est, TGV Rhin-Rhône — Responsable d'Études</div>
+      <div class="profil-item">Tunnel A41, AREVA La Hague — Coordinateur BIM</div>
+      <div class="profil-item">Laboratoire souterrain de Bure depuis 2005</div>
+      <div class="profil-item">Communication scientifique Andra/CIGEO 2024-2025</div>
+      <div class="profil-item">Franchise Attila — 300 prospects, 100 signés (33%)</div>
+      <div class="profil-item">Formation Blockchain/Alyra 2022</div>
+      <div class="profil-item">Installateur Photovoltaïque CFA 202
